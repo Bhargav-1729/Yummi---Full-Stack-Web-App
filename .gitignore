@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Production build
+build/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Uploads / runtime files
+backend/uploads/
+
+
+# IDE settings
+.vscode/
+.idea/
+
+# Coverage reports
+coverage/
+/coverage
+/reports
+
+
+# Coverage / test output
+.nyc_output/
+coverage/
