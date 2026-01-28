@@ -1,6 +1,10 @@
 import axios from 'axios';
-// https://projectyummi-web-service.onrender.com/api
-const API = axios.create({ baseURL: 'https://projectyummi-web-service.onrender.com/api' });
+
+
+const API = axios.create({
+  baseURL: process.env.REACT_APP_BACKEND_URL,
+  withCredentials: true,
+});
 
 export const loginUser = (formData) => API.post('/auth/login', formData);
 export const signupUser = (formData) => API.post('/auth/signup', formData);

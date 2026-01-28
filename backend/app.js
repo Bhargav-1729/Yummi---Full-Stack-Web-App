@@ -1,78 +1,109 @@
-const express = require('express');
-const connectDB = require('./config/db');
-const cors = require('cors');
-const authRoutes = require("./routes/authRoutes")
-const adminRoutes = require('./routes/adminRoutes');
-const restaurantRoutes = require('./routes/resRoutes');
-const userRoutes = require('./routes/userRoutes');
-const cartRoutes = require('./routes/cartRoutes');
-const requestLogger = require('./middleware/Logger');
-const { errorHandler, routenotFoundHandler } = require('./middleware/errorHandler'); 
-const morgan = require('morgan');
-const swaggerDocs = require('./config/swagger');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const morgan = require("morgan");
+require("dotenv").config();
 
+const connectDB = require("./config/db");
+const swaggerDocs = require("./config/swagger");
 
+// Routes
+const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const restaurantRoutes = require("./routes/resRoutes");
+const userRoutes = require("./routes/userRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+
+// Middleware
+const {
+  errorHandler,
+  routenotFoundHandler,
+} = require("./middleware/errorHandler");
 
 const app = express();
-swaggerDocs(app);
-app.set('trust proxy', 1);
 
-// connectDB();
+/* --------------------------------------------------
+   TRUST PROXY (required for Render / Vercel)
+-------------------------------------------------- */
+app.set("trust proxy", 1);
 
-// Connect to DB (Skip in test environment)
-if (process.env.NODE_ENV !== 'test') {
-    connectDB();
+/* --------------------------------------------------
+   DATABASE CONNECTION
+-------------------------------------------------- */
+if (process.env.NODE_ENV !== "test") {
+  connectDB();
 }
-// https://project-yummi.vercel.app
-app.use(cors({
-   origin: 'https://project-yummi.vercel.app', // Replace with your frontend URL
-   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
-}));
 
-// app.use(requestLogger);
-// app.use(morgan('dev'));
+/* --------------------------------------------------
+   SWAGGER
+-------------------------------------------------- */
+swaggerDocs(app);
 
+/* --------------------------------------------------
+   ✅ CORS (FIXED – THIS WAS YOUR MAIN ISSUE)
+-------------------------------------------------- */
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://project-yummi.vercel.app",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+// 🚨 REQUIRED FOR PREFLIGHT REQUESTS
+app.options("*", cors());
+
+/* --------------------------------------------------
+   BODY PARSERS
+-------------------------------------------------- */
 app.use(express.urlencoded({ extended: false }));
-
-
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
 
+/* --------------------------------------------------
+   LOGGING (optional)
+-------------------------------------------------- */
+// app.use(morgan("dev"));
 
+/* --------------------------------------------------
+   STATIC FILES
+-------------------------------------------------- */
+app.use("/uploads", express.static("uploads"));
 
-app.use('/api/user', userRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/restaurant', restaurantRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/cart',cartRoutes);
+/* --------------------------------------------------
+   ROUTES
+-------------------------------------------------- */
+app.use("/api/user", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/restaurant", restaurantRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/cart", cartRoutes);
 
-
-// Health check
-app.get('/health', (req, res) => res.status(200).json({ status: 'OK' }));
-
-app.get("/test-error", (req, res, next) => {
-    const err = new Error("This is a test error!");
-    err.status = 500;
-    next(err); // Passes error to the middleware
+/* --------------------------------------------------
+   HEALTH CHECK
+-------------------------------------------------- */
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK" });
 });
 
+/* --------------------------------------------------
+   TEST ERROR ROUTE
+-------------------------------------------------- */
+app.get("/test-error", (req, res, next) => {
+  const err = new Error("This is a test error!");
+  err.status = 500;
+  next(err);
+});
 
+/* --------------------------------------------------
+   ERROR HANDLERS (ALWAYS LAST)
+-------------------------------------------------- */
+app.use(routenotFoundHandler);
+app.use(errorHandler);
 
-app.use(routenotFoundHandler); 
-app.use(errorHandler);  
-
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {
-//     console.log(`Server running on port ${PORT}`);
-// });
-
-// Start server only if not in test environment
-// if (process.env.NODE_ENV !== 'test') {
-//     const PORT = process.env.PORT || 5000;
-//     app.listen(PORT, () => {
-//         console.log(`Server running on port ${PORT}`);
-//     });
-// }
-
-module.exports = app; // Export the app for testing purposes
+/* --------------------------------------------------
+   EXPORT APP (Server started elsewhere)
+-------------------------------------------------- */
+module.exports = app;
