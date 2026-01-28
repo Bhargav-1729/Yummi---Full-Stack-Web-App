@@ -5,7 +5,7 @@ import { getCartItems, deleteCartItem } from '../../services/api';
 import UserNavBar from "../UserNavBar"
 import { updateQuantity } from '../../services/api';
 import UserPaymentPage from "./UserPaymentPage";
-import Footer from '../footer';
+
 const Cart = () => {
     const [cart, setCart] = useState({ items: [], totalAmount: 0 });
     const [loading, setLoading] = useState(true);
@@ -98,7 +98,7 @@ const Cart = () => {
     if (loading) return <div className="cart-loading">Loading...</div>;
 
 
-    const baseURL = 'http://localhost:5000/uploads';
+    
     
     return (
         <div><UserNavBar/>

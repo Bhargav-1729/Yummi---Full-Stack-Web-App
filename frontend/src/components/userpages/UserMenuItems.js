@@ -125,6 +125,9 @@ const RestaurantMenu = () => {
     const removeItemFromCart = async (itemId) => {
         try {
             const response = await deleteCartItem(itemId, token);
+            if(response.status === 201){
+                console.log("successfully deleted");
+            }
         } catch (error) {
             console.error('Error removing item from cart:', error);
         }

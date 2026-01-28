@@ -1,12 +1,10 @@
 // src/components/UserLayout.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Route, Routes, Navigate } from 'react-router-dom';
 import UserHomePage from './userpages/UserHomePage';
 import UserNavBar from './UserNavBar';
 import { RenderUserRest } from '../services/api';
 import { useState, useEffect } from 'react';
-import UserMenuItems from './userpages/UserMenuItems';
-import UserCartPage from "./userpages/UserCartPage";
 import UserResPage from './userpages/UserResPage';
 
 const UserLayout = () => {
